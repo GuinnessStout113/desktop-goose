@@ -1,0 +1,11 @@
+#!/bin/bash
+# goosectl start|stop|restart|status|uninstall
+L=local.desktop-goose; P=$HOME/Library/LaunchAgents/$L.plist; T=gui/$(id -u)
+case "$1" in
+  start)   launchctl bootstrap $T "$P" 2>/dev/null || launchctl kickstart $T/$L ;;
+  stop)    launchctl bootout $T/$L 2>/dev/null; echo "goose stopped (returns at next login)";;
+  restart) launchctl kickstart -k $T/$L ;;
+  status)  launchctl print $T/$L 2>/dev/null | grep -E '^\s*(state|pid) =' || echo "not loaded" ;;
+  uninstall) launchctl bootout $T/$L 2>/dev/null; rm -f "$P"; echo "agent removed; delete ~/.desktop-goose to remove the rest" ;;
+  *) echo "usage: goosectl start|stop|restart|status|uninstall"; exit 1 ;;
+esac
